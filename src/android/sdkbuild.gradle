@@ -1,6 +1,7 @@
 repositories{    
   jcenter()
   mavenLocal()
+  maven { url 'https://jitpack.io' }
 }
 
 dependencies {
