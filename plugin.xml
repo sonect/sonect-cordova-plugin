@@ -19,11 +19,10 @@
     <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="SonectCordovaPlugin">
-                <param name="android-package" value="ch.sonect.sdk" />
+                <param name="android-package" value="ch.sonect.sdk.SonectCordovaPlugin" />
             </feature>
         </config-file>
         <framework src="src/android/sdkbuild.gradle" custom="true" type="gradleReference" />
-        <resource-file src="android/lib/sdk-dev-release.aar" target="libs/sdk-dev-release.aar" />
-        <source-file src="src/android/SonectCordovaPlugin.java" />
+        <source-file src="src/android/SonectCordovaPlugin.java" target-dir="src/ch/sonect/sdk"/>
     </platform>
 </plugin>

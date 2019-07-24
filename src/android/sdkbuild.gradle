@@ -1,12 +1,10 @@
 repositories{    
   jcenter()
-  flatDir {
-      dirs 'libs'
-   }
+  mavenLocal()
 }
 
 dependencies {
-   compile(name:'sdk-dev-release', ext:'aar')
+   implementation 'ch.sonect:sdk:0.1'
 }
 
 android {
