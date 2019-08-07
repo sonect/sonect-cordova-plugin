@@ -11,6 +11,8 @@ To initialize and present the plugin add the following to your .js codebase.
 Additional documentation regarding credentials, themeing and 
 payment methods is available [here](https://github.com/sonect/sonect-sdk-ios)
 
+Check out the [Sample App](https://github.com/sonect/sonect-cordova-testapp) for an in depth implementation example. 
+
 ```
 openSonect: function() {
     let credentials = {
