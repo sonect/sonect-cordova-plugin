@@ -14,7 +14,6 @@ import java.util.ArrayList;
 public class SonectCordovaPlugin extends CordovaPlugin {
     @Override
     public boolean execute(String action, CordovaArgs args, CallbackContext callbackContext) throws JSONException {
-        Log.e("!@# action performed: ", action);
         if ("present".equalsIgnoreCase(action)) {
             processPresentCommand(args);
         }
@@ -43,11 +42,15 @@ public class SonectCordovaPlugin extends CordovaPlugin {
         }
 
         if (isWithdrawInProgress) {
+            String uniqueID = null;
+            if (paymentRef.has("uniqueIdentifier")) {
+                uniqueID = paymentRef.getString("uniqueIdentifier");
+            }
             SDKEntryPointActivity.Companion.startWithdraw(cordova.getActivity(),
                     new SonectSDK.Config.UserCredentials(credentials.getString("userId"),
                             credentials.getString("token"),
                             credentials.getString("signature"), "eu", null),
-                    new SDKEntryPointActivity.NewTransactionReference(paymentRef.getString("paymentReference"), paymentRef.getString("uniqueIdentifier"), "30", "CHF"),
+                    new SDKEntryPointActivity.NewTransactionReference(paymentRef.getString("paymentReference"), uniqueID, "30", "CHF"),
                     pms,
                     theme.get("type") == "light",
                     SonectSDK.Config.Enviroment.DEV);
