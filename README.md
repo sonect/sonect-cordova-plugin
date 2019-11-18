@@ -42,8 +42,10 @@ openSonect: function() {
         },
     ];
 
+    sonect.init(credentials, paymentMethods, theme);
+
     // Present the sonect SDK with the credentials obtained from your server, payment methods and a theme
-    sonect.present(credentials, paymentMethods, theme,
+    sonect.present(
         // When the user selects a payment method, this callback is asked if that payment method
         // has enough balance to process the transaction. If this is less than the picked value
 	// then the Confirm button with be greyed out. uniqueIdentifier is the identifier of the payment
@@ -89,6 +91,8 @@ paySonect: function() {
     // is supposed to process the transaction. Also you should pass the paymentReference obtained  
     // from your server. 
     let paymentReference = {
+        value: "20.00",
+        currency: "CHF",
         uniqueIdentifier: app.paymentUniqueIdentifier,
         paymentReference: "YOUR_PAYMENT_REFERENCE"
     };
@@ -127,3 +131,67 @@ To configure the iOS SDK do the following steps:
 </dict>
 ```
 - to change to `PROD` environment, remove the `SonectEnvironment` key. 
+
+### Android
+#### Restrictions
+Android can't properly communicate with underneath Cordova Activity and Sonect plugin when Sonect Activity is opened. OS could kill any activity that is not visible and in this case Android SDK will loose parent handler.
+
+Because of this we just launch Sonect Activity and wait for result.
+
+#### Dependencies
+
+In order to simplify integration Jetifier and AndroidX should be enabled in your Android app. In `gradle.properties` it looks:
+
+```
+android.useAndroidX=true
+android.enableJetifier=true
+```
+
+Sonect Cordova Plugin depends on nativ implementation of Sonect Android SDK, dependencies in plugin:
+
+```
+   implementation ('com.github.sonect:android-user-sdk:1.0.10') {
+       exclude group: "idenfySdk"
+       exclude group: "io.anyline"
+   }
+```
+
+#### Implementation
+
+Cordova activity must implement `onActivityResult` method and handle withdrawal request.
+
+```
+    if (requestCode == SDKEntryPointActivity.REQUEST_CODE) {
+        if (resultCode == SDKEntryPointActivity.RESULT_WITHDRAW) {
+            Toast.makeText(this,
+                    "Requested :" + intent.getIntExtra(SDKEntryPointActivity.AMOUNT_TO_WITHDRAW, -1),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+```
+
+Android Sonect SDK stores user's context just inside plugin:
+
+```
+    private static boolean IS_LIGHT_THEME;
+    private static ArrayList<SDKEntryPointActivity.PaymentMethodReference> PAYMENT_METHODS;
+    private static SonectSDK.Config.UserCredentials CREDENTIALS;
+```
+
+As per test this data should persist during activity recreation but still won't let memoryLeaks happen.
+
+Android implementation relies on next methods from public interface:
+
+```
+exports.init = function(credentials, paymentMethods, theme, success, error) {
+    exec(success, error, 'SonectCordovaPlugin', 'init', [credentials, paymentMethods, theme]);
+};
+
+exports.presentTransaction = function(paymentReference, success, error) {
+    exec(paymentReference, error, 'SonectCordovaPlugin', 'presentTransaction', [paymentReference]);
+};
+```
+
+#### Theming
+
+From `theme` structure in Android as of now we're only using light/dark switcher.
